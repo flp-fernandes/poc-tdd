@@ -81,13 +81,8 @@ describe('todoService', () => {
         when: new Date('2024-04-11 12:00:00 GMT-0')
       }
 
-      const expectedId = '000001';
-      const uuid = require('uuid');
-      const fakeUUID = sandbox.fake.returns(expectedId);
-      sandbox.replace(uuid.v4, uuid.v4.name, fakeUUID);
-
-
       const data = new Todo(properties);
+      Reflect.set(data, 'id', '00001');
 
       const today = new Date('2024-04-13');
       sandbox.useFakeTimers(today.getTime());
@@ -95,13 +90,35 @@ describe('todoService', () => {
       todoService.create(data);
 
       const expectedCallWith = {
-        ...data,
+        ...properties,
+        id: data.id,
         status: "late"
       };
 
       expect(todoService.todoRepository.create.calledOnceWithExactly(expectedCallWith)).to.be.ok
     });
 
-    it('should save todo item with with pending status');
+    it('should save todo item with with pending status', () => {
+      const properties = {
+        text: 'I must walk with my dog',
+        when: new Date('2024-04-14 12:00:00 GMT-0')
+      }
+
+      const data = new Todo(properties);
+      Reflect.set(data, 'id', '00001');
+
+      const today = new Date('2024-04-13');
+      sandbox.useFakeTimers(today.getTime());
+
+      todoService.create(data);
+
+      const expectedCallWith = {
+        ...properties,
+        id: data.id,
+        status: "pending"
+      };
+
+      expect(todoService.todoRepository.create.calledOnceWithExactly(expectedCallWith)).to.be.ok
+    });
   });
 });

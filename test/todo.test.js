@@ -1,8 +1,17 @@
-const { describe, it, before } = require("mocha");
+const { describe, it, before, beforeEach, afterEach } = require("mocha");
 const { expect } = require("chai");
+const { createSandbox } = require('sinon');
+
 const Todo = require('../src/todo');
 
 describe("Todo", () => {
+  let sandbox;
+
+  beforeEach(() => {
+    sandbox = createSandbox()
+  });
+  afterEach(() => sandbox.restore());
+
   describe("#isValid", () => {
     const dataValid = {
       text: 'Hello World',
@@ -33,9 +42,19 @@ describe("Todo", () => {
 
     it('should have "id", "text", "when" and "status" properties after creating object', () => {
       const todo = new Todo(dataValid);
+      Reflect.set(todo, 'id', '000001');
+
+      const expectedItem = {
+        text: dataValid.text,
+        when: dataValid.when,
+        status: '',
+        id: todo.id
+      }
+
       const result = todo.isValid();
 
       expect(result).to.be.ok;
+      expect(todo).to.be.deep.equal(expectedItem);
     });
   })
 });
